@@ -167,3 +167,9 @@ Full glossary with file links: `docs/internals/glossary.md`
 
 - Don't verify with browsers or computer use unless the user explicitly agrees or requests it.
 - Security is important, but should not be over-indexed on, especially for dev mode/maintainer-only features.
+
+## This is a fork
+
+Read [FORK.md](./FORK.md) before doing anything here. It covers what differs from
+upstream: the Devin ACP provider, how and when to rebase onto `upstream/main`, the
+toolchain gotchas on this machine, and which running processes to leave alone.
