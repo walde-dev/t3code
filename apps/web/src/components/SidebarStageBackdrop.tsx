@@ -1,12 +1,13 @@
 import { useAtomValue } from "@effect/atom-react";
 import { useId } from "react";
 
+import iceboxHeader from "../assets/icebox-header.jpg";
 import { APP_STAGE_LABEL } from "../branding";
 import { resolveServerBackedAppStageLabel } from "../branding.logic";
 import { primaryServerConfigAtom } from "../state/server";
 
-export type SidebarStageBackdropVariant = "nightly" | "dev";
-export type EnvironmentIdentificationPillLabel = "Dev" | "Nightly";
+export type SidebarStageBackdropVariant = "icebox" | "dev";
+export type EnvironmentIdentificationPillLabel = "Dev" | "Icebox";
 
 // A wide viewBox keeps the 96-unit art height at a fixed scale while sidebar resizing reveals
 // more horizontal canvas instead of zooming the scene.
@@ -18,7 +19,11 @@ export function resolveSidebarStageBackdropVariant(
 ): SidebarStageBackdropVariant | null {
   if (!enabled) return null;
   const normalized = stageLabel.trim().toLowerCase();
-  if (normalized === "nightly") return "nightly";
+  // Fork: this build's stage label is "Walde", and upstream's nightly art is
+  // replaced wholesale, so both land on Icebox.
+  if (normalized === "nightly" || normalized === "walde" || normalized === "icebox") {
+    return "icebox";
+  }
   if (normalized === "dev") return "dev";
   return null;
 }
@@ -26,8 +31,8 @@ export function resolveSidebarStageBackdropVariant(
 export function resolveSidebarStageFocusRingOffsetClass(
   variant: SidebarStageBackdropVariant,
 ): string {
-  return variant === "nightly"
-    ? "focus-visible:ring-offset-(--stage-night-bottom)"
+  return variant === "icebox"
+    ? "focus-visible:ring-offset-black"
     : "focus-visible:ring-offset-(--stage-art-bottom)";
 }
 
@@ -36,7 +41,9 @@ export function resolveEnvironmentIdentificationPillLabel(
 ): EnvironmentIdentificationPillLabel | null {
   const normalized = stageLabel.trim().toLowerCase();
   if (normalized === "dev") return "Dev";
-  if (normalized === "nightly") return "Nightly";
+  if (normalized === "nightly" || normalized === "walde" || normalized === "icebox") {
+    return "Icebox";
+  }
   return null;
 }
 
@@ -67,11 +74,31 @@ export function SidebarStageBackdrop({ variant }: { variant: SidebarStageBackdro
 }
 
 export function StageBackdropArt({ variant }: { variant: SidebarStageBackdropVariant }) {
-  return variant === "nightly" ? <NightlySkyArt /> : <DevBlueprintArt />;
+  return variant === "icebox" ? <IceboxArt /> : <DevBlueprintArt />;
 }
 
 export function StageBackdropButtonArt({ variant }: { variant: SidebarStageBackdropVariant }) {
-  return variant === "nightly" ? <NightlySkyArt compact /> : <DevBlueprintArt compact />;
+  return variant === "icebox" ? <IceboxArt compact /> : <DevBlueprintArt compact />;
+}
+
+/**
+ * Photographic stage art, unlike the generated SVG channels. `object-cover`
+ * with a right-biased focal point keeps the brightest links in frame as the
+ * sidebar widens, and the left gradient keeps the wordmark legible over it.
+ */
+function IceboxArt({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className="stage-art stage-icebox relative h-full w-full overflow-hidden bg-black">
+      <img
+        alt=""
+        className="h-full w-full object-cover"
+        draggable={false}
+        src={iceboxHeader}
+        style={{ objectPosition: compact ? "75% 50%" : "60% 50%" }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent" />
+    </div>
+  );
 }
 
 const NIGHTLY_STARS: ReadonlyArray<{
