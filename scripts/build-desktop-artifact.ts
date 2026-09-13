@@ -2720,7 +2720,12 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
           schemes: ["t3code", "t3code-dev"],
         },
       ],
-      ...(signed ? { sign: path.join(repoRoot, "scripts/sign-macos.ts") } : {}),
+      // Fork: without an identity, electron-builder leaves Electron's own stale
+      // ad-hoc signature in place, and packaging our asar and icons into the
+      // bundle invalidates it ("code has no resources but signature indicates
+      // they must be present"). Squirrel then refuses to install the update.
+      // "-" re-signs the finished bundle ad-hoc, which verifies cleanly.
+      ...(signed ? { sign: path.join(repoRoot, "scripts/sign-macos.ts") } : { identity: "-" }),
       ...(macPasskeySigning
         ? {
             entitlements: macPasskeySigning.entitlementsPath,
