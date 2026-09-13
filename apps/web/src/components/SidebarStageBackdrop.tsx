@@ -19,13 +19,11 @@ export function resolveSidebarStageBackdropVariant(
 ): SidebarStageBackdropVariant | null {
   if (!enabled) return null;
   const normalized = stageLabel.trim().toLowerCase();
-  // Fork: this build's stage label is "Walde", and upstream's nightly art is
-  // replaced wholesale, so both land on Icebox.
-  if (normalized === "nightly" || normalized === "walde" || normalized === "icebox") {
-    return "icebox";
-  }
   if (normalized === "dev") return "dev";
-  return null;
+  // Fork: every non-dev stage is Icebox. Upstream keyed this to the exact
+  // "nightly" label, but this build's label depends on how the desktop shell
+  // injects branding ("Walde", "Alpha", ...), so match by exclusion instead.
+  return "icebox";
 }
 
 export function resolveSidebarStageFocusRingOffsetClass(
@@ -41,10 +39,7 @@ export function resolveEnvironmentIdentificationPillLabel(
 ): EnvironmentIdentificationPillLabel | null {
   const normalized = stageLabel.trim().toLowerCase();
   if (normalized === "dev") return "Dev";
-  if (normalized === "nightly" || normalized === "walde" || normalized === "icebox") {
-    return "Icebox";
-  }
-  return null;
+  return "Icebox";
 }
 
 export function useEnvironmentStageLabel(): string {

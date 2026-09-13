@@ -12,17 +12,15 @@ describe("SidebarStageBackdrop", () => {
     expect(resolveSidebarStageBackdropVariant("Dev")).toBe("dev");
     expect(resolveSidebarStageBackdropVariant("Nightly")).toBe("icebox");
     expect(resolveSidebarStageBackdropVariant("Walde")).toBe("icebox");
-    expect(resolveSidebarStageBackdropVariant("Icebox")).toBe("icebox");
+    expect(resolveSidebarStageBackdropVariant("Alpha")).toBe("icebox");
     expect(resolveSidebarStageBackdropVariant("Dev", false)).toBeNull();
-    expect(resolveSidebarStageBackdropVariant("Alpha")).toBeNull();
   });
 
   it("resolves supported environment pill labels", () => {
     expect(resolveEnvironmentIdentificationPillLabel("Dev")).toBe("Dev");
     expect(resolveEnvironmentIdentificationPillLabel("nightly")).toBe("Icebox");
     expect(resolveEnvironmentIdentificationPillLabel("Walde")).toBe("Icebox");
-    expect(resolveEnvironmentIdentificationPillLabel("Latest")).toBeNull();
-    expect(resolveEnvironmentIdentificationPillLabel("Alpha")).toBeNull();
+    expect(resolveEnvironmentIdentificationPillLabel("Alpha")).toBe("Icebox");
   });
 
   it.each(["dev"] as const)(
