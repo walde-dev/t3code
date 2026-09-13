@@ -2674,12 +2674,17 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
     if (localUpdateDir !== undefined && !localUpdateDir.startsWith("/")) {
       throw new Error("T3CODE_DESKTOP_UPDATE_DIR must be an absolute path");
     }
-    // Pin the channel: electron-builder otherwise derives it from the version's
-    // prerelease tag, so a build stamped with an upstream nightly version writes
-    // nightly-mac.yml while the installed app, which declares no channel, only
-    // ever reads latest-mac.yml.
+    // Channel must match what the installed app asks for. This fork tracks
+    // upstream's nightly channel and stamps builds with upstream nightly
+    // versions, so electron-builder's version-derived channel (nightly) is the
+    // right one; override only via T3CODE_DESKTOP_UPDATE_CHANNEL.
+    const localUpdateChannel = process.env.T3CODE_DESKTOP_UPDATE_CHANNEL?.trim();
     const publishConfig = localUpdateDir
-      ? { provider: "generic" as const, url: `file://${localUpdateDir}`, channel: "latest" }
+      ? {
+          provider: "generic" as const,
+          url: `file://${localUpdateDir}`,
+          ...(localUpdateChannel ? { channel: localUpdateChannel } : {}),
+        }
       : yield* resolveGitHubPublishConfig(updateChannel);
     if (publishConfig) {
       buildConfig.publish = [publishConfig];
