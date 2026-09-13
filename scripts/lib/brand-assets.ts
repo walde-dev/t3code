@@ -3,6 +3,10 @@ export const BRAND_ASSET_PATHS = {
   developmentIosIconPng: "assets/dev/blueprint-ios-1024.png",
   developmentUniversalIconPng: "assets/dev/blueprint-universal-1024.png",
 
+  // Fork: the desktop build ships the Icebox mark instead of upstream's black
+  // wordmark. Only macOS is overridden; this fork does not build linux/windows.
+  iceboxMacIconPng: "assets/icebox/icebox-macos-1024.png",
+
   productionIconComposerProject: "assets/prod/app-icon.icon",
   productionIosIconPng: "assets/prod/black-ios-1024.png",
   productionMacIconPng: "assets/prod/black-macos-1024.png",
