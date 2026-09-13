@@ -64,6 +64,18 @@ export const SidebarChromeHeader = memo(function SidebarChromeHeader({
         )}
       />
       <SidebarBrand onBackdrop={backdropVariant !== null} />
+      {/* Fork marker: this build is not upstream's, and the header is the one
+          place that is always visible. */}
+      <Badge
+        className={cn(
+          "relative z-10 ml-1.5 hidden rounded-full px-1.5 tracking-tight md:inline-flex",
+          backdropVariant ? "border-white/25 bg-white/15 text-white/90" : "text-muted-foreground",
+        )}
+        size="sm"
+        variant="secondary"
+      >
+        walde
+      </Badge>
       {pillLabel ? (
         <Badge
           className="relative z-10 ml-1 hidden @[15rem]/sidebar-header:inline-flex"
