@@ -10,19 +10,22 @@ import {
 describe("SidebarStageBackdrop", () => {
   it("resolves stage artwork only when enabled", () => {
     expect(resolveSidebarStageBackdropVariant("Dev")).toBe("dev");
-    expect(resolveSidebarStageBackdropVariant("Nightly")).toBe("nightly");
+    expect(resolveSidebarStageBackdropVariant("Nightly")).toBe("icebox");
+    expect(resolveSidebarStageBackdropVariant("Walde")).toBe("icebox");
+    expect(resolveSidebarStageBackdropVariant("Icebox")).toBe("icebox");
     expect(resolveSidebarStageBackdropVariant("Dev", false)).toBeNull();
     expect(resolveSidebarStageBackdropVariant("Alpha")).toBeNull();
   });
 
   it("resolves supported environment pill labels", () => {
     expect(resolveEnvironmentIdentificationPillLabel("Dev")).toBe("Dev");
-    expect(resolveEnvironmentIdentificationPillLabel("nightly")).toBe("Nightly");
+    expect(resolveEnvironmentIdentificationPillLabel("nightly")).toBe("Icebox");
+    expect(resolveEnvironmentIdentificationPillLabel("Walde")).toBe("Icebox");
     expect(resolveEnvironmentIdentificationPillLabel("Latest")).toBeNull();
     expect(resolveEnvironmentIdentificationPillLabel("Alpha")).toBeNull();
   });
 
-  it.each(["nightly", "dev"] as const)(
+  it.each(["dev"] as const)(
     "uses unique SVG definition ids when %s artwork is rendered more than once",
     (variant) => {
       const markup = renderToStaticMarkup(
@@ -37,4 +40,12 @@ describe("SidebarStageBackdrop", () => {
       expect(new Set(ids).size).toBe(ids.length);
     },
   );
+
+  // Icebox is photographic rather than generated SVG, so it has no ids to collide.
+  it("renders the icebox stage as an image", () => {
+    const markup = renderToStaticMarkup(<StageBackdropArt variant="icebox" />);
+
+    expect(markup).toContain("<img");
+    expect(markup).not.toContain('id="');
+  });
 });
