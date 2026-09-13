@@ -2679,10 +2679,15 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
     // versions, so electron-builder's version-derived channel (nightly) is the
     // right one; override only via T3CODE_DESKTOP_UPDATE_CHANNEL.
     const localUpdateChannel = process.env.T3CODE_DESKTOP_UPDATE_CHANNEL?.trim();
+    // electron-updater's generic provider fetches over HTTP; a file:// URL is
+    // not something it can GET. Serve the staged directory locally and point
+    // the feed at that, falling back to the directory for the URL only when
+    // nothing better was given.
+    const localUpdateUrl = process.env.T3CODE_DESKTOP_UPDATE_URL?.trim();
     const publishConfig = localUpdateDir
       ? {
           provider: "generic" as const,
-          url: `file://${localUpdateDir}`,
+          url: localUpdateUrl ?? `file://${localUpdateDir}`,
           ...(localUpdateChannel ? { channel: localUpdateChannel } : {}),
         }
       : yield* resolveGitHubPublishConfig(updateChannel);
