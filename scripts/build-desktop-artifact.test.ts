@@ -253,24 +253,22 @@ it.layer(NodeServices.layer)("build-desktop-artifact", (it) => {
     assert.equal(resolveDesktopUpdateChannel("0.0.17"), "latest");
   });
 
-  it("switches desktop packaging product names to nightly for nightly builds", () => {
+  it("keeps the fork product name regardless of version", () => {
+    // Builds are stamped with the upstream nightly version they track, so the
+    // name must not follow the version the way it does upstream.
     assert.equal(resolveDesktopProductName("0.0.17"), "T3 Code (Walde)");
-    assert.equal(resolveDesktopProductName("0.0.17-nightly.20260413.42"), "T3 Code (Nightly)");
+    assert.equal(resolveDesktopProductName("0.0.17-nightly.20260413.42"), "T3 Code (Walde)");
   });
 
-  it("switches desktop packaging icons to the nightly artwork for nightly versions", () => {
-    assert.deepStrictEqual(resolveDesktopBuildIconAssets("0.0.17"), {
-      // Fork: non-nightly builds ship the Icebox mark on macOS.
+  it("keeps the Icebox icon regardless of version", () => {
+    const expected = {
       macIconPng: BRAND_ASSET_PATHS.iceboxMacIconPng,
       linuxIconPng: BRAND_ASSET_PATHS.productionLinuxIconPng,
       windowsIconIco: BRAND_ASSET_PATHS.productionWindowsIconIco,
-    });
+    };
 
-    assert.deepStrictEqual(resolveDesktopBuildIconAssets("0.0.17-nightly.20260413.42"), {
-      macIconPng: BRAND_ASSET_PATHS.nightlyMacIconPng,
-      linuxIconPng: BRAND_ASSET_PATHS.nightlyLinuxIconPng,
-      windowsIconIco: BRAND_ASSET_PATHS.nightlyWindowsIconIco,
-    });
+    assert.deepStrictEqual(resolveDesktopBuildIconAssets("0.0.17"), expected);
+    assert.deepStrictEqual(resolveDesktopBuildIconAssets("0.0.17-nightly.20260413.42"), expected);
   });
 
   it("switches the bundled splash and favicon branding for nightly versions", () => {

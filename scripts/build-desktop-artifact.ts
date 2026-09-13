@@ -2579,15 +2579,10 @@ export function resolveDesktopWebAssetBrand(version: string): WebAssetBrand {
   return resolveWebAssetBrandForChannel(resolveDesktopUpdateChannel(version));
 }
 
-export function resolveDesktopBuildIconAssets(version: string): DesktopBuildIconAssets {
-  if (resolveDesktopUpdateChannel(version) === "nightly") {
-    return {
-      macIconPng: BRAND_ASSET_PATHS.nightlyMacIconPng,
-      linuxIconPng: BRAND_ASSET_PATHS.nightlyLinuxIconPng,
-      windowsIconIco: BRAND_ASSET_PATHS.nightlyWindowsIconIco,
-    };
-  }
-
+export function resolveDesktopBuildIconAssets(_version: string): DesktopBuildIconAssets {
+  // Fork: identity does not follow the version. Builds are stamped with the
+  // upstream nightly version they track so electron-updater can compare them,
+  // and that must not flip the app back to upstream's Nightly artwork.
   return {
     macIconPng: BRAND_ASSET_PATHS.iceboxMacIconPng,
     linuxIconPng: BRAND_ASSET_PATHS.productionLinuxIconPng,
@@ -2612,10 +2607,9 @@ export function resolvePackageManagerUserAgent(packageManager: string): string {
   return `${trimmed.slice(0, versionSeparator)}/${trimmed.slice(versionSeparator + 1)}`;
 }
 
-export function resolveDesktopProductName(version: string): string {
-  return resolveDesktopUpdateChannel(version) === "nightly"
-    ? "T3 Code (Nightly)"
-    : (desktopPackageJson.productName ?? "T3 Code");
+export function resolveDesktopProductName(_version: string): string {
+  // Fork: always the fork's own name, for the same reason as the icons above.
+  return desktopPackageJson.productName ?? "T3 Code";
 }
 
 export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
