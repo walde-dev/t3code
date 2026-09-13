@@ -2669,7 +2669,20 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
   };
   const updateChannel = resolveDesktopUpdateChannel(version);
   if (!isDesktopPreviewVersion(version)) {
-    const publishConfig = yield* resolveGitHubPublishConfig(updateChannel);
+    // Fork-local: this build is never published to GitHub, so point the update
+    // feed at a directory on disk. electron-builder then emits `latest-mac.yml`
+    // next to the artifacts and bakes the feed into `app-update.yml`, which lets
+    // the stock sidebar update pill drive check / download / restart-to-apply
+    // against a locally rebuilt app.
+    // Absolute only: a relative feed path would resolve against the installed
+    // app at runtime, not against the build, and fail silently.
+    const localUpdateDir = process.env.T3CODE_DESKTOP_UPDATE_DIR?.trim();
+    if (localUpdateDir !== undefined && !localUpdateDir.startsWith("/")) {
+      throw new Error("T3CODE_DESKTOP_UPDATE_DIR must be an absolute path");
+    }
+    const publishConfig = localUpdateDir
+      ? { provider: "generic" as const, url: `file://${localUpdateDir}` }
+      : yield* resolveGitHubPublishConfig(updateChannel);
     if (publishConfig) {
       buildConfig.publish = [publishConfig];
     } else if (mockUpdates) {
