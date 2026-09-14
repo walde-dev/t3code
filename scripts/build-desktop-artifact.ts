@@ -3776,7 +3776,13 @@ const buildDesktopArtifact = Effect.fn("buildDesktopArtifact")(function* (
     }
   }
   if (!options.signed) {
-    buildEnv.CSC_IDENTITY_AUTO_DISCOVERY = "false";
+    // Disabling auto-discovery makes electron-builder skip identity lookup
+    // altogether, which silently overrides mac.identity and leaves the bundle
+    // ad-hoc signed. Keep discovery on when a local identity is configured, or
+    // the fork's stable-signature path can never take effect.
+    if (!process.env.T3CODE_DESKTOP_SIGN_IDENTITY?.trim()) {
+      buildEnv.CSC_IDENTITY_AUTO_DISCOVERY = "false";
+    }
     delete buildEnv.CSC_LINK;
     delete buildEnv.CSC_KEY_PASSWORD;
     delete buildEnv.APPLE_API_KEY;
