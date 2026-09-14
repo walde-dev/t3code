@@ -2661,6 +2661,9 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
       ...(platform === "win" && wslRuntimeBundled ? WSL_RUNTIME_EXTRA_RESOURCES : []),
     ],
   };
+  // A codesigning identity for unsigned fork builds. Without one the bundle is
+  // ad-hoc signed, and Squirrel cannot verify any later update against it.
+  const localSignIdentity = process.env.T3CODE_DESKTOP_SIGN_IDENTITY?.trim() || undefined;
   const updateChannel = resolveDesktopUpdateChannel(version);
   if (!isDesktopPreviewVersion(version)) {
     // Fork-local: this build is never published to GitHub, so point the update
@@ -2724,8 +2727,16 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
       // ad-hoc signature in place, and packaging our asar and icons into the
       // bundle invalidates it ("code has no resources but signature indicates
       // they must be present"). Squirrel then refuses to install the update.
-      // "-" re-signs the finished bundle ad-hoc, which verifies cleanly.
-      ...(signed ? { sign: path.join(repoRoot, "scripts/sign-macos.ts") } : { identity: "-" }),
+      //
+      // Ad-hoc ("-") re-signs the bundle so codesign --verify passes, but its
+      // designated requirement is the per-build cdhash, so Squirrel rejects every
+      // subsequent update and the install aborts before ShipIt is spawned — the
+      // in-app updater downloads and then silently does nothing. Signing with a
+      // real identity instead gives a requirement keyed to the certificate, which
+      // is stable across builds and lets updates install.
+      ...(signed
+        ? { sign: path.join(repoRoot, "scripts/sign-macos.ts") }
+        : { identity: localSignIdentity ?? "-" }),
       ...(macPasskeySigning
         ? {
             entitlements: macPasskeySigning.entitlementsPath,
